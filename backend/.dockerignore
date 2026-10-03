@@ -1,0 +1,16 @@
+# Archivos generados localmente
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.coverage
+htmlcov/
+local.db
+*.db
+# Secretos y archivos locales
+.env
+.env.*
+.vscode
+.DS_Store
+Thumbs.db

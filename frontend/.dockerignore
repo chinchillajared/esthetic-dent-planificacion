@@ -1,0 +1,11 @@
+# Se instalan y construyen dentro de la imagen.
+node_modules
+dist
+# Archivos locales que no deben entrar a la imagen.
+.env
+.env.*
+npm-debug.log*
+.eslintcache
+.vscode
+.DS_Store
+Thumbs.db

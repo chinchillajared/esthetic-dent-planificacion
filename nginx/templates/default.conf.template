@@ -1,0 +1,53 @@
+upstream frontend {
+    server frontend:3000;
+    keepalive 16;
+}
+
+upstream backend {
+    server backend:8000;
+    keepalive 16;
+}
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      '';
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${SERVER_NAME};
+
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # Validación de dominio de Let's Encrypt (certbot --webroot).
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type text/plain;
+    }
+
+    # Si FORCE_HTTPS=true, este include redirige todo a HTTPS.
+    include /etc/nginx/snippets/https-redirect.conf;
+    include /etc/nginx/snippets/security-headers.conf;
+    include /etc/nginx/snippets/locations.conf;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name ${SERVER_NAME};
+
+    include /etc/nginx/snippets/ssl-cert.conf;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    include /etc/nginx/snippets/security-headers.conf;
+    include /etc/nginx/snippets/locations.conf;
+}

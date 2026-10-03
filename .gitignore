@@ -1,0 +1,43 @@
+# ---- Secretos y configuración local ----
+.env
+.env.*
+!.env.example
+
+# ---- Material de referencia del cliente (no forma parte del código) ----
+others/
+
+# ---- Respaldos y datos generados ----
+backups/
+*.dump
+*.tar.gz
+*.sql.gz
+
+# ---- Frontend ----
+node_modules/
+frontend/dist/
+npm-debug.log*
+.eslintcache
+
+# ---- Backend (Python) ----
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.coverage
+htmlcov/
+backend/local.db
+*.db
+
+# ---- Certificados (nunca al repositorio) ----
+*.pem
+*.key
+*.crt
+
+# ---- Editores y sistema operativo ----
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

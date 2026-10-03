@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planificador de pacientes · Esthetic Dent International</title>
+  <meta name="description" content="Seguimiento de pacientes internacionales de Esthetic Dent International: vuelos, traslados, hospedaje, tratamientos, documentos y pagos.">
+  <meta name="theme-color" content="#034C8C">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/assets/img/logo.jpeg" type="image/jpeg">
+  <link rel="preload" href="/assets/fonts/cabin-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/share-tech-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/app.css">
+  <script type="module" src="/assets/js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link sr-only-focusable" href="#main">Saltar al contenido</a>
+
+  <!-- Iconos (trazos propios, estilo lineal) -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="i-plane" viewBox="0 0 24 24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5M12 16.5h.01"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-bed" viewBox="0 0 24 24"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/></symbol>
+    <symbol id="i-tooth" viewBox="0 0 24 24"><path d="M7.5 3C5 3 3 5 3 7.6c0 2 .8 3.4 1.5 4.8.7 1.3 1 3 1.3 5.1.3 2.6 1 4.5 2.4 4.5 1.5 0 1.9-2.3 2.3-4.3.3-1.5.7-2.4 1.5-2.4s1.2.9 1.5 2.4c.4 2 .8 4.3 2.3 4.3 1.4 0 2.1-1.9 2.4-4.5.3-2.1.6-3.8 1.3-5.1.7-1.4 1.5-2.8 1.5-4.8C21 5 19 3 16.5 3c-1.9 0-2.9 1-4.5 1S9.4 3 7.5 3z"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.2 6.8a2.8 2.8 0 0 0-4-4L3.8 16.2 3 21l4.8-.8zM15 5l4 4"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8M21 3v5h-5"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  </svg>
+
+  <!-- Acceso: cargando, iniciar sesión o error -->
+  <section class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
+    <div class="auth-card">
+      <img src="/assets/img/logo.jpeg" alt="Esthetic Dent International" width="112" height="112" class="mx-auto size-28 rounded-full ring-1 ring-line">
+      <h1 id="auth-title" class="mt-5 text-center text-2xl font-bold">Planificador de pacientes</h1>
+      <p class="mt-2 text-center text-muted" id="auth-text">Verificando tu sesión…</p>
+      <div class="auth-spinner mt-6" id="auth-spinner" aria-hidden="true"></div>
+      <button class="btn btn-primary mt-6 w-full" type="button" id="auth-login" hidden>Iniciar sesión</button>
+      <button class="btn btn-ghost mt-6 w-full" type="button" id="auth-retry" hidden>Intentar de nuevo</button>
+      <p class="mt-6 text-center text-xs text-muted">Acceso exclusivo para el equipo de Esthetic Dent International.</p>
+    </div>
+  </section>
+
+  <div class="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]" id="app-shell" hidden>
+
+    <!-- Barra superior (móvil y tablet) -->
+    <header aria-label="Barra superior" class="sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
+      <button class="btn-icon" type="button" id="menu-open" aria-controls="sidebar" aria-expanded="false">
+        <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
+        <span class="sr-only">Abrir menú</span>
+      </button>
+      <img src="/assets/img/logo.jpeg" alt="" width="40" height="40" class="size-10 rounded-full">
+      <p class="font-display text-base font-bold text-deep">Esthetic Dent</p>
+      <button class="btn btn-primary btn-sm ml-auto" type="button" data-action="new-patient">
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg>
+        <span>Nuevo<span class="hidden sm:inline"> paciente</span></span>
+      </button>
+    </header>
+
+    <div class="fixed inset-0 z-40 bg-deep/40 backdrop-blur-sm lg:hidden" id="sidebar-scrim" hidden></div>
+
+    <!-- Navegación lateral -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col border-r border-line bg-white px-5 py-6 transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:h-dvh lg:w-auto lg:translate-x-0" aria-label="Navegación principal">
+      <div class="flex items-center gap-3 px-1">
+        <img src="/assets/img/logo.jpeg" alt="Esthetic Dent International" width="56" height="56" class="size-14 rounded-full ring-1 ring-line">
+        <div class="min-w-0">
+          <p class="font-display text-lg leading-tight font-bold text-deep">Esthetic Dent</p>
+          <p class="text-[0.8125rem] text-muted">Pacientes internacionales</p>
+        </div>
+        <button class="btn-icon ml-auto size-9 lg:hidden" type="button" id="menu-close">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-x"/></svg>
+          <span class="sr-only">Cerrar menú</span>
+        </button>
+      </div>
+
+      <nav class="mt-9 grid gap-7" aria-label="Secciones">
+        <div>
+          <p class="eyebrow mb-2 px-3.5">Operación</p>
+          <ul class="grid gap-1">
+            <li><a class="nav-link" href="#viajes" data-nav="viajes"><svg class="icon" aria-hidden="true"><use href="#i-plane"/></svg>Viajes</a></li>
+            <li><a class="nav-link" href="#pacientes" data-nav="pacientes"><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg>Pacientes<span class="nav-count" data-count="pacientes">0</span></a></li>
+            <li><a class="nav-link" href="#documentos" data-nav="documentos"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>Documentos<span class="nav-count" data-count="faltantes" title="Documentos faltantes">0</span></a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="eyebrow mb-2 px-3.5">Ajustes</p>
+          <ul class="grid gap-1">
+            <li><a class="nav-link" href="#configuracion" data-nav="configuracion"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>Configuración</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="mt-auto grid gap-2">
+        <p class="rounded-xl bg-alert-soft px-3 py-2 text-xs text-alert" id="dev-mode-note" hidden>Modo desarrollo: sin autenticación. Configurá Auth0 antes de usar datos reales.</p>
+        <div class="flex items-center gap-3 rounded-2xl bg-paper p-3.5">
+          <span class="grid size-10 flex-none place-items-center rounded-full bg-ink font-display text-sm font-bold text-white" aria-hidden="true" id="user-initials">ED</span>
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-display text-sm font-bold text-deep" id="user-name">Equipo de coordinación</p>
+            <p class="truncate text-xs text-muted" id="user-email">Esthetic Dent International</p>
+          </div>
+          <button class="btn-icon size-9 flex-none" type="button" id="logout" title="Cerrar sesión">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-logout"/></svg>
+            <span class="sr-only">Cerrar sesión</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main id="main" class="min-w-0 px-4 py-6 sm:px-6 lg:px-10 lg:py-9" tabindex="-1">
+
+      <!-- ===== Vista: Viajes ===== -->
+      <section data-view="viajes" aria-labelledby="t-viajes" hidden>
+        <header class="flex flex-wrap items-end justify-between gap-4">
+          <div class="min-w-0">
+            <nav aria-label="Ruta de navegación">
+              <ol class="flex gap-2 text-[0.8125rem] text-muted">
+                <li>Operación</li>
+                <li aria-hidden="true">/</li>
+                <li aria-current="page">Viajes internacionales</li>
+              </ol>
+            </nav>
+            <h1 id="t-viajes" class="mt-1.5 text-[1.75rem] font-bold sm:text-[2rem]">Planificación global de pacientes</h1>
+            <p class="mt-1 max-w-2xl text-muted">Vuelos, traslados, hospedaje, tratamientos y pagos de cada paciente que viaja a la clínica.</p>
+          </div>
+          <button class="btn btn-primary hidden lg:inline-flex" type="button" data-action="new-patient">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg>
+            Nuevo paciente
+          </button>
+        </header>
+
+        <form class="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-[minmax(16rem,1fr)_13rem_11rem_14rem]" role="search" id="trip-filters">
+          <label class="search md:col-span-3 xl:col-span-1">
+            <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+            <span class="sr-only">Buscar paciente</span>
+            <input type="search" name="q" placeholder="Buscar paciente, hotel o tratamiento…" autocomplete="off">
+          </label>
+          <label class="filter">
+            <span class="eyebrow">Mes de viaje</span>
+            <select name="mes" id="filter-mes"></select>
+          </label>
+          <label class="filter">
+            <span class="eyebrow">Sede</span>
+            <select name="sede" id="filter-sede"></select>
+          </label>
+          <label class="filter">
+            <span class="eyebrow">Vista</span>
+            <select name="vista">
+              <option value="todos">Todos los pacientes</option>
+              <option value="pendientes">Con pagos pendientes</option>
+              <option value="por-confirmar">Con vuelos por confirmar</option>
+              <option value="proximos">Llegan en los próximos 14 días</option>
+            </select>
+          </label>
+          <button class="sr-only" type="submit">Aplicar filtros</button>
+        </form>
+
+        <h2 class="sr-only">Resumen de la vista</h2>
+        <ul class="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4" id="trip-stats"></ul>
+
+        <div class="card mt-5 overflow-clip p-0">
+          <section class="hidden xl:block" id="trip-scroll" aria-labelledby="trip-caption">
+            <table class="trip-table">
+              <caption id="trip-caption" class="sr-only">Itinerario de pacientes del periodo seleccionado</caption>
+              <thead>
+                <tr>
+                  <th scope="col" class="col-patient">Paciente</th>
+                  <th scope="col" class="rail-head col-group-start">Vuelo int.<small>Llegada</small></th>
+                  <th scope="col" class="rail-head">Vuelo nacional<small>Ida</small></th>
+                  <th scope="col" class="rail-head">Pick-up<small>Traslado</small></th>
+                  <th scope="col" class="rail-head">Hotel<small>Estadía</small></th>
+                  <th scope="col" class="rail-head">Vuelo nacional<small>Regreso</small></th>
+                  <th scope="col" class="rail-head rail-last">Vuelo int.<small>Salida</small></th>
+                </tr>
+              </thead>
+              <tbody id="trip-rows"></tbody>
+            </table>
+          </section>
+          <ul class="grid gap-3 bg-paper p-3 md:grid-cols-2 xl:hidden" id="trip-cards"></ul>
+          <div class="grid place-items-center gap-3 px-6 py-14 text-center" id="trip-empty" hidden>
+            <span class="grid size-14 place-items-center rounded-full bg-haze text-azure">
+              <svg class="icon size-7" aria-hidden="true"><use href="#i-plane"/></svg>
+            </span>
+            <h2 class="text-lg font-bold">No hay pacientes con estos filtros</h2>
+            <p class="max-w-md text-muted">Cambiá el mes, la sede o la búsqueda, o registrá un nuevo paciente para empezar a planificar su viaje.</p>
+            <button class="btn btn-ghost mt-1" type="button" data-action="reset-filters">Limpiar filtros</button>
+          </div>
+        </div>
+
+        <footer class="mt-4 flex flex-wrap items-center justify-between gap-3 text-[0.8125rem] text-muted">
+          <p>Usá «Transporte» o «Tratamiento» en cada paciente para ver su itinerario o el detalle del tratamiento y los pagos.</p>
+          <p class="sr-only">Leyenda del itinerario:</p>
+          <ul class="leg-legend flex flex-wrap items-center gap-4">
+            <li class="flex items-center gap-2 leg-current"><span class="leg-dot" aria-hidden="true"></span>En curso</li>
+            <li class="flex items-center gap-2"><span class="leg-dot" aria-hidden="true"></span>Confirmado</li>
+            <li class="flex items-center gap-2 leg-pending"><span class="leg-dot" aria-hidden="true"></span>Por confirmar</li>
+            <li class="flex items-center gap-2 leg-skip"><span class="leg-dot" aria-hidden="true"></span>No aplica</li>
+          </ul>
+        </footer>
+      </section>
+
+      <!-- ===== Vista: Pacientes ===== -->
+      <section data-view="pacientes" aria-labelledby="t-pacientes" hidden>
+        <header class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="text-[0.8125rem] text-muted">Operación</p>
+            <h1 id="t-pacientes" class="mt-1.5 text-[1.75rem] font-bold sm:text-[2rem]">Pacientes</h1>
+            <p class="mt-1 max-w-2xl text-muted">Datos de contacto, sede, tratamiento y saldo de cada paciente.</p>
+          </div>
+          <button class="btn btn-primary hidden lg:inline-flex" type="button" data-action="new-patient">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg>
+            Nuevo paciente
+          </button>
+        </header>
+        <label class="search mt-6">
+          <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+          <span class="sr-only">Buscar paciente</span>
+          <input type="search" id="patient-search" placeholder="Buscar por nombre, país o correo…" autocomplete="off">
+        </label>
+        <ul class="mt-5 grid gap-4 sm:grid-cols-2 2xl:grid-cols-3" id="patient-grid"></ul>
+      </section>
+
+      <!-- ===== Vista: Documentos ===== -->
+      <section data-view="documentos" aria-labelledby="t-documentos" hidden>
+        <header>
+          <p class="text-[0.8125rem] text-muted">Operación</p>
+          <h1 id="t-documentos" class="mt-1.5 text-[1.75rem] font-bold sm:text-[2rem]">Documentos</h1>
+          <p class="mt-1 max-w-2xl text-muted">Pasaportes, seguros de viaje, radiografías y comprobantes de pago de todos los pacientes.</p>
+        </header>
+        <div class="mt-6 grid gap-5 xl:grid-cols-[1fr_22rem]">
+          <div class="card overflow-x-auto">
+            <table class="data-table min-w-[40rem]">
+              <caption class="sr-only">Documentos cargados</caption>
+              <thead>
+                <tr><th scope="col">Documento</th><th scope="col">Paciente</th><th scope="col">Tipo</th><th scope="col">Cargado</th><th scope="col"><span class="sr-only">Acciones</span></th></tr>
+              </thead>
+              <tbody id="doc-rows"></tbody>
+            </table>
+          </div>
+          <aside class="card self-start p-5" aria-labelledby="t-faltantes">
+            <h2 id="t-faltantes" class="text-lg font-bold">Documentos faltantes</h2>
+            <p class="mt-1 text-sm text-muted">Cada paciente necesita pasaporte y seguro de viaje antes de su llegada.</p>
+            <ul class="mt-4 grid gap-3" id="doc-missing"></ul>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ===== Vista: Configuración ===== -->
+      <section data-view="configuracion" aria-labelledby="t-config" hidden>
+        <header>
+          <p class="text-[0.8125rem] text-muted">Ajustes</p>
+          <h1 id="t-config" class="mt-1.5 text-[1.75rem] font-bold sm:text-[2rem]">Configuración</h1>
+          <p class="mt-1 max-w-2xl text-muted">Sedes, tratamientos, hoteles y vuelos que aparecen como opciones al registrar o editar un paciente.</p>
+        </header>
+
+        <div class="mt-6 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4" role="tablist" aria-label="Secciones de configuración" id="cfg-tabs">
+          <button class="cfg-tab" type="button" role="tab" id="tab-cfg-sedes" aria-controls="panel-cfg-sedes" aria-selected="true">
+            <span class="cfg-tab-icon"><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg></span>
+            <span class="cfg-tab-label">Sedes</span>
+            <span class="cfg-tab-count" id="count-sedes">0</span>
+          </button>
+          <button class="cfg-tab" type="button" role="tab" id="tab-cfg-tratamientos" aria-controls="panel-cfg-tratamientos" aria-selected="false" tabindex="-1">
+            <span class="cfg-tab-icon"><svg class="icon" aria-hidden="true"><use href="#i-tooth"/></svg></span>
+            <span class="cfg-tab-label">Tratamientos</span>
+            <span class="cfg-tab-count" id="count-tratamientos">0</span>
+          </button>
+          <button class="cfg-tab" type="button" role="tab" id="tab-cfg-hoteles" aria-controls="panel-cfg-hoteles" aria-selected="false" tabindex="-1">
+            <span class="cfg-tab-icon"><svg class="icon" aria-hidden="true"><use href="#i-bed"/></svg></span>
+            <span class="cfg-tab-label">Hoteles</span>
+            <span class="cfg-tab-count" id="count-hoteles">0</span>
+          </button>
+          <button class="cfg-tab" type="button" role="tab" id="tab-cfg-vuelos" aria-controls="panel-cfg-vuelos" aria-selected="false" tabindex="-1">
+            <span class="cfg-tab-icon"><svg class="icon" aria-hidden="true"><use href="#i-plane"/></svg></span>
+            <span class="cfg-tab-label">Vuelos</span>
+            <span class="cfg-tab-count" id="count-vuelos">0</span>
+          </button>
+        </div>
+        <div class="mt-4 max-w-4xl">
+          <section class="card p-5 sm:p-6" role="tabpanel" id="panel-cfg-sedes" aria-labelledby="tab-cfg-sedes">
+            <h2 class="text-lg font-bold">Sedes</h2>
+            <p class="mt-1 text-sm text-muted">Opciones del campo «Sede» y del filtro de viajes.</p>
+            <form class="mt-4 flex flex-wrap items-end gap-3 rounded-xl bg-paper p-4" id="form-sede" novalidate>
+              <label class="field min-w-48 flex-1"><span>Nombre de la sede</span><input class="control" type="text" name="nombre" maxlength="60" placeholder="Ej.: Tamarindo" autocomplete="off" required></label>
+              <button class="btn btn-primary" type="submit">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg>
+                Agregar sede
+              </button>
+            </form>
+            <ul class="mt-2 divide-y divide-line" id="list-sedes"></ul>
+          </section>
+          <section class="card p-5 sm:p-6" role="tabpanel" id="panel-cfg-tratamientos" aria-labelledby="tab-cfg-tratamientos" hidden>
+            <h2 class="text-lg font-bold">Tratamientos</h2>
+            <p class="mt-1 text-sm text-muted">Opciones sugeridas en el campo «Tratamiento» de la ficha.</p>
+            <form class="mt-4 flex flex-wrap items-end gap-3 rounded-xl bg-paper p-4" id="form-tratamiento" novalidate>
+              <label class="field min-w-48 flex-[2_1_12rem]"><span>Nombre del tratamiento</span><input class="control" type="text" name="nombre" maxlength="80" placeholder="Ej.: Blanqueamiento" autocomplete="off" required></label>
+              <div class="field flex-[1_1_13rem]">
+                <span id="lbl-precio-tratamiento">Precio</span>
+                <div class="price-group">
+                  <select class="control" name="moneda" aria-label="Moneda del precio"><option value="USD">$ USD</option><option value="CRC">₡ CRC</option></select>
+                  <input class="control" type="number" name="precio" min="0" step="1" inputmode="decimal" placeholder="0" aria-labelledby="lbl-precio-tratamiento" required>
+                </div>
+              </div>
+              <label class="field flex-[1_1_10rem]"><span>Se paga en</span><select class="control" name="viajes"><option value="2">2 viajes</option><option value="1">1 viaje</option></select></label>
+              <div class="flex flex-[1_1_15rem] items-end gap-3">
+                <label class="flex min-h-11 items-center gap-2 rounded-xl border border-line bg-white px-3">
+                  <input class="size-4 accent-ink" type="checkbox" name="porArcos">
+                  <span class="text-sm">Por arcos</span>
+                </label>
+                <label class="field flex-1" data-arcos-field><span>Arcos</span><select class="control" name="arcos"><option value="1">1 arco</option><option value="2">2 arcos</option></select></label>
+              </div>
+              <button class="btn btn-primary" type="submit">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg>
+                Agregar tratamiento
+              </button>
+            </form>
+            <ul class="mt-2 divide-y divide-line" id="list-tratamientos"></ul>
+          </section>
+          <section class="card p-5 sm:p-6" role="tabpanel" id="panel-cfg-hoteles" aria-labelledby="tab-cfg-hoteles" hidden>
+            <h2 class="text-lg font-bold">Hoteles</h2>
+            <p class="mt-1 text-sm text-muted">Opciones sugeridas en el campo «Hotel» de la ficha.</p>
+            <form class="mt-4 flex flex-wrap items-end gap-3 rounded-xl bg-paper p-4" id="form-hotel" novalidate>
+              <label class="field min-w-48 flex-1"><span>Nombre del hotel</span><input class="control" type="text" name="nombre" maxlength="80" placeholder="Ej.: Hotel Tropical" autocomplete="off" required></label>
+              <button class="btn btn-primary" type="submit">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg>
+                Agregar hotel
+              </button>
+            </form>
+            <ul class="mt-2 divide-y divide-line" id="list-hoteles"></ul>
+          </section>
+          <section class="card p-5 sm:p-6" role="tabpanel" id="panel-cfg-vuelos" aria-labelledby="tab-cfg-vuelos" hidden>
+            <h2 class="text-lg font-bold">Vuelos</h2>
+            <p class="mt-1 text-sm text-muted">Rutas con código de aeropuerto que se eligen en el itinerario de la ficha.</p>
+            <form class="mt-4 flex flex-wrap items-end gap-3 rounded-xl bg-paper p-4" id="form-vuelo" novalidate>
+              <label class="field flex-[1_1_10rem]"><span>Tipo de vuelo</span><select class="control" name="tipo"><option value="internacional">Internacional</option><option value="nacional">Nacional</option></select></label>
+              <label class="field flex-[1_1_6rem]"><span>Origen</span><input class="control" type="text" name="origen" maxlength="20" placeholder="MIA" autocomplete="off" required></label>
+              <label class="field flex-[1_1_6rem]"><span>Destino</span><input class="control" type="text" name="destino" maxlength="20" placeholder="SJO" autocomplete="off" required></label>
+              <div class="field flex-[1_1_13rem]">
+                <span id="lbl-precio-vuelo">Precio (opcional)</span>
+                <div class="price-group">
+                  <select class="control" name="moneda" aria-label="Moneda del precio"><option value="USD">$ USD</option><option value="CRC">₡ CRC</option></select>
+                  <input class="control" type="number" name="precio" min="0" step="1" inputmode="decimal" placeholder="Sin precio" aria-labelledby="lbl-precio-vuelo">
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#i-plus"/></svg>
+                Agregar vuelo
+              </button>
+            </form>
+            <ul class="mt-2 divide-y divide-line" id="list-vuelos"></ul>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Ficha del paciente -->
+  <dialog class="clipboard" id="ficha" aria-labelledby="ficha-view-title">
+    <div class="clipboard-board">
+      <span class="clipboard-clip" aria-hidden="true"></span>
+      <div class="clipboard-paper">
+      <!-- Lectura: datos del paciente sobre la hoja -->
+      <section class="paper-view" id="ficha-view" aria-label="Datos del paciente"></section>
+      <!-- Edición -->
+    <form id="ficha-form" class="flex h-full min-h-0 flex-col" novalidate hidden>
+      <div class="border-b border-line px-5 pt-5 sm:px-7">
+        <div class="flex items-start gap-4">
+          <div class="min-w-0 flex-1">
+            <p class="eyebrow" id="ficha-eyebrow">Ficha del paciente</p>
+            <h2 class="mt-1 truncate text-2xl font-bold" id="ficha-title">Paciente</h2>
+            <p class="mt-1 text-sm text-muted" id="ficha-subtitle"></p>
+          </div>
+          <button class="btn-icon flex-none" type="button" data-action="close-ficha">
+            <svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>
+            <span class="sr-only">Cerrar ficha</span>
+          </button>
+        </div>
+        <div class="mt-4 -mb-px flex overflow-x-auto overflow-y-hidden [scrollbar-width:none]" role="tablist" aria-label="Secciones de la ficha">
+          <button class="tab" type="button" role="tab" id="tab-viaje" aria-controls="panel-viaje" aria-selected="true">Viaje</button>
+          <button class="tab" type="button" role="tab" id="tab-pagos" aria-controls="panel-pagos" aria-selected="false" tabindex="-1">Pagos y seguro</button>
+          <button class="tab" type="button" role="tab" id="tab-docs" aria-controls="panel-docs" aria-selected="false" tabindex="-1">Documentos</button>
+          <button class="tab" type="button" role="tab" id="tab-notas" aria-controls="panel-notas" aria-selected="false" tabindex="-1">Comentarios</button>
+        </div>
+      </div>
+
+      <div class="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-7">
+        <!-- Viaje -->
+        <div class="grid gap-5" role="tabpanel" id="panel-viaje" aria-labelledby="tab-viaje">
+          <fieldset class="fieldset grid gap-4 sm:grid-cols-2">
+            <legend>Paciente</legend>
+            <label class="field sm:col-span-2"><span>Nombre completo</span><input class="control" type="text" name="nombre" required maxlength="120" autocomplete="off"></label>
+            <label class="field"><span>País de residencia</span><input class="control" type="text" name="pais" maxlength="60" autocomplete="off"></label>
+            <label class="field"><span>Sede</span><select class="control" name="sede" id="ficha-sede"></select></label>
+            <label class="field"><span>Correo</span><input class="control" type="email" name="email" maxlength="120" autocomplete="off"></label>
+            <label class="field"><span>Teléfono / WhatsApp</span><input class="control" type="tel" name="telefono" maxlength="30" autocomplete="off"></label>
+            <label class="field"><span>Tratamiento</span><input class="control" type="text" name="tratamiento" maxlength="80" list="tratamientos"><span class="text-xs text-azure" id="trat-hint" aria-live="polite"></span></label>
+            <label class="field" data-arcos><span>Arcos</span><select class="control" name="arcos"><option value="1">1 arco</option><option value="2">2 arcos</option></select></label>
+          </fieldset>
+
+          <fieldset class="fieldset grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <legend>Llegada</legend>
+            <label class="field"><span>Vuelo internacional</span><select class="control" name="llegada.ruta" data-routes="internacional"></select></label>
+            <label class="field"><span>N.º de vuelo</span><input class="control uppercase" type="text" name="llegada.vuelo" maxlength="12" placeholder="AA1234" autocomplete="off" spellcheck="false" data-flight></label>
+            <label class="field"><span>Fecha y hora de llegada</span><input class="control" type="datetime-local" name="llegada.fecha"></label>
+            <label class="flex items-center gap-3 rounded-xl bg-paper px-4 py-3 sm:col-span-3">
+              <input class="size-4 accent-ink" type="checkbox" name="nacionalIda.aplica">
+              <span>Incluye vuelo nacional <span class="text-muted">(desmarcar si el traslado desde SJO es terrestre)</span></span>
+            </label>
+            <label class="field"><span>Vuelo nacional de ida</span><select class="control" name="nacionalIda.ruta" data-routes="nacional" data-domestic></select></label>
+            <label class="field"><span>N.º de vuelo</span><input class="control uppercase" type="text" name="nacionalIda.vuelo" maxlength="12" placeholder="AA1234" autocomplete="off" spellcheck="false" data-flight data-domestic></label>
+            <label class="field"><span>Fecha y hora</span><input class="control" type="datetime-local" name="nacionalIda.fecha" data-domestic></label>
+            <label class="field sm:col-span-2"><span>Pick-up (aeropuerto → hotel)</span><input class="control" type="datetime-local" name="pickup.fecha"></label>
+          </fieldset>
+
+          <fieldset class="fieldset grid gap-4 sm:grid-cols-2">
+            <legend>Hospedaje</legend>
+            <label class="field sm:col-span-2"><span>Hotel</span><input class="control" type="text" name="hotel.nombre" maxlength="80" list="hoteles"></label>
+            <label class="field"><span>Check-in</span><input class="control" type="date" name="hotel.checkin"></label>
+            <label class="field"><span>Check-out</span><input class="control" type="date" name="hotel.checkout"></label>
+          </fieldset>
+
+          <fieldset class="fieldset grid gap-4 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <legend>Regreso</legend>
+            <label class="field"><span>Vuelo nacional de regreso</span><select class="control" name="nacionalRegreso.ruta" data-routes="nacional" data-domestic></select></label>
+            <label class="field"><span>N.º de vuelo</span><input class="control uppercase" type="text" name="nacionalRegreso.vuelo" maxlength="12" placeholder="AA1234" autocomplete="off" spellcheck="false" data-flight data-domestic></label>
+            <label class="field"><span>Fecha y hora</span><input class="control" type="datetime-local" name="nacionalRegreso.fecha" data-domestic></label>
+            <label class="field"><span>Vuelo internacional</span><select class="control" name="salida.ruta" data-routes="internacional"></select></label>
+            <label class="field"><span>N.º de vuelo</span><input class="control uppercase" type="text" name="salida.vuelo" maxlength="12" placeholder="AA1234" autocomplete="off" spellcheck="false" data-flight></label>
+            <label class="field"><span>Fecha y hora de salida</span><input class="control" type="datetime-local" name="salida.fecha"></label>
+          </fieldset>
+        </div>
+
+        <!-- Pagos y seguro -->
+        <div class="grid gap-5" role="tabpanel" id="panel-pagos" aria-labelledby="tab-pagos" hidden>
+          <fieldset class="fieldset grid gap-4 sm:grid-cols-2">
+            <legend>Montos (USD)</legend>
+            <label class="field"><span>Total del tratamiento</span><input class="control" type="number" name="pagos.total" min="0" step="10" inputmode="decimal"></label>
+            <label class="field"><span>Se paga en</span><select class="control" name="pagos.viajes"><option value="2">Dos viajes</option><option value="1">Un viaje (pago único)</option></select></label>
+            <label class="field"><span id="lbl-viaje1">Viaje 1</span><input class="control" type="number" name="pagos.viaje1.monto" min="0" step="10" inputmode="decimal"></label>
+            <label class="field"><span>Estado</span><select class="control" name="pagos.viaje1.estado"><option value="pendiente">Pendiente</option><option value="pagado">Pagado</option></select></label>
+            <label class="field" data-viaje2><span>Viaje 2</span><input class="control" type="number" name="pagos.viaje2.monto" min="0" step="10" inputmode="decimal"></label>
+            <label class="field" data-viaje2><span>Estado</span><select class="control" name="pagos.viaje2.estado"><option value="pendiente">Pendiente</option><option value="pagado">Pagado</option></select></label>
+            <p class="text-sm text-muted sm:col-span-2" id="split-hint"></p>
+          </fieldset>
+          <fieldset class="fieldset grid gap-4 sm:grid-cols-2">
+            <legend>Seguro de viaje</legend>
+            <label class="field"><span>Aseguradora</span><input class="control" type="text" name="seguro.aseguradora" maxlength="60"></label>
+            <label class="field"><span>Número de póliza</span><input class="control" type="text" name="seguro.poliza" maxlength="40"></label>
+            <label class="field sm:col-span-2"><span>Estado</span><select class="control" name="seguro.estado"><option value="pendiente">Pendiente</option><option value="vigente">Vigente</option></select></label>
+          </fieldset>
+        </div>
+
+        <!-- Documentos -->
+        <div class="grid gap-4" role="tabpanel" id="panel-docs" aria-labelledby="tab-docs" hidden>
+          <label class="dropzone" id="dropzone">
+            <svg class="icon size-7" aria-hidden="true"><use href="#i-upload"/></svg>
+            <span class="font-display font-bold">Arrastrá archivos o seleccionalos</span>
+            <span class="text-sm text-muted">PDF, JPG o PNG · máximo 10 MB por archivo</span>
+            <input class="sr-only" type="file" id="doc-input" multiple accept=".pdf,.jpg,.jpeg,.png">
+          </label>
+          <ul class="grid gap-2" id="ficha-docs"></ul>
+        </div>
+
+        <!-- Comentarios -->
+        <div class="grid gap-4" role="tabpanel" id="panel-notas" aria-labelledby="tab-notas" hidden>
+          <label class="field"><span>Nuevo comentario</span><textarea class="control" id="note-input" maxlength="1000" placeholder="Ej.: Prefiere habitación en planta baja; viaja con acompañante."></textarea></label>
+          <div class="flex justify-end"><button class="btn btn-ghost btn-sm" type="button" data-action="add-note">Agregar comentario</button></div>
+          <ol class="grid gap-3" id="ficha-notes"></ol>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 border-t border-line px-5 py-4 sm:px-7">
+        <button class="btn btn-ghost text-alert" type="button" data-action="delete-patient" id="delete-patient">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash"/></svg>
+          <span class="hidden sm:inline">Eliminar</span>
+          <span class="sr-only sm:hidden">Eliminar paciente</span>
+        </button>
+        <button class="btn btn-ghost ml-auto" type="button" data-action="cancel-edit">Cancelar</button>
+        <button class="btn btn-primary" type="submit" id="ficha-submit">Guardar cambios</button>
+      </div>
+    </form>
+      </div>
+    </div>
+  </dialog>
+
+  <datalist id="tratamientos"></datalist>
+  <datalist id="hoteles"></datalist>
+
+  <!-- Confirmaciones -->
+  <dialog class="modal" id="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+    <div class="grid gap-4 p-6">
+      <span class="grid size-12 place-items-center rounded-full bg-alert-soft text-alert" id="confirm-icon">
+        <svg class="icon size-6" aria-hidden="true"><use href="#i-alert"/></svg>
+      </span>
+      <h2 class="text-xl font-bold" id="confirm-title">¿Confirmar?</h2>
+      <p class="text-muted" id="confirm-text"></p>
+      <div class="mt-2 flex justify-end gap-3">
+        <button class="btn btn-ghost" type="button" id="confirm-cancel">Cancelar</button>
+        <button class="btn btn-danger" type="button" id="confirm-ok">Confirmar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="fixed right-4 bottom-4 z-[60] grid justify-items-end gap-2" id="toasts" role="status" aria-live="polite"></div>
+</body>
+</html>

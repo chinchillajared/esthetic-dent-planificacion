@@ -1,0 +1,14 @@
+# Cada servicio se construye desde su carpeta (frontend/, backend/, nginx/), que tiene su propio
+# .dockerignore. Este archivo protege el contexto raíz por si algún build lo usa.
+.git
+.env
+.env.*
+others
+backups
+docs
+deploy
+**/node_modules
+**/dist
+**/__pycache__
+**/.pytest_cache
+**/*.pem

@@ -1,0 +1,121 @@
+name: ${COMPOSE_PROJECT_NAME:?Definí COMPOSE_PROJECT_NAME en .env}
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Definí POSTGRES_DB en .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Definí POSTGRES_USER en .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definí POSTGRES_PASSWORD en .env}
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    expose:
+      - "5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - data
+
+  backend:
+    build:
+      context: ./backend
+      target: runtime
+    image: ${COMPOSE_PROJECT_NAME}/backend:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN:-}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-}
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:-}
+      AUTH_DEV_BYPASS: ${AUTH_DEV_BYPASS:-false}
+      AIRLABS_API_KEY: ${AIRLABS_API_KEY:-}
+      SEED_DEMO: ${SEED_DEMO:-false}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
+    expose:
+      - "8000"
+    volumes:
+      - uploads:/data/uploads
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+      - data
+
+  frontend:
+    build:
+      context: ./frontend
+    image: ${COMPOSE_PROJECT_NAME}/frontend:local
+    restart: unless-stopped
+    expose:
+      - "3000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+
+  nginx:
+    build:
+      context: ./nginx
+    image: ${COMPOSE_PROJECT_NAME}/nginx:local
+    restart: unless-stopped
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    environment:
+      SERVER_NAME: ${SERVER_NAME:?Definí SERVER_NAME en .env}
+      FORCE_HTTPS: ${FORCE_HTTPS:-false}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN:-}
+    ports:
+      - "${NGINX_HTTP_PORT:?Definí NGINX_HTTP_PORT en .env}:80"
+      - "${NGINX_HTTPS_PORT:?Definí NGINX_HTTPS_PORT en .env}:443"
+    volumes:
+      - nginx_certs:/etc/nginx/certs
+      - letsencrypt:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+
+  # Certificados de Let's Encrypt. No arranca con "up": se ejecuta a pedido (ver DEPLOY.md).
+  certbot:
+    image: certbot/certbot:v5.8.0
+    profiles: ["certbot"]
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    networks:
+      - web
+
+networks:
+  web:
+  # Red interna: la base de datos no tiene salida a internet ni es accesible desde nginx.
+  data:
+    internal: true
+
+volumes:
+  nginx_certs:
+  letsencrypt:
+  certbot_www:
+  db_data:
+  uploads:

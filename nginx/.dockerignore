@@ -1,0 +1,7 @@
+# Los certificados se montan como volumen; nunca se copian a la imagen.
+*.pem
+*.key
+*.crt
+.env
+.DS_Store
+Thumbs.db
