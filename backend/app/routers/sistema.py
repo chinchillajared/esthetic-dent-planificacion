@@ -33,6 +33,7 @@ def auth_config(settings: Settings = Depends(get_settings)):
         domain=settings.auth0_domain,
         client_id=settings.auth0_client_id,
         audience=settings.auth0_audience,
+        connection=settings.auth0_connection,
     )
 
 

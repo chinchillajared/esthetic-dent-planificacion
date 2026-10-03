@@ -12,7 +12,7 @@ nginx (80/443) ──┬── /api/*  → backend  (FastAPI :8000) ── db (P
 
 | Carpeta | Contenido |
 |---|---|
-| `frontend/` | HTML5 + Tailwind CSS v4 + JavaScript (módulos ES). Inicio de sesión con `auth0-spa-js`. |
+| `frontend/` | HTML5 + Tailwind CSS v4 + JavaScript (módulos ES). Inicio de sesión con `auth0-spa-js` (código por correo, sin contraseña). |
 | `backend/` | FastAPI + SQLAlchemy 2 + Alembic. Valida los tokens de Auth0 y guarda los documentos en un volumen privado. |
 | `db/` | Configuración inicial de PostgreSQL (`db/init`). |
 | `nginx/` | Proxy inverso: TLS (Let's Encrypt o autofirmado), encabezados de seguridad (CSP), límite de solicitudes por IP. |
@@ -101,6 +101,7 @@ docker build --target test backend
 | `FORCE_HTTPS` | `true` redirige HTTP → HTTPS (con certificado real) |
 | `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` | Base de datos |
 | `AUTH0_DOMAIN` / `AUTH0_AUDIENCE` / `AUTH0_CLIENT_ID` | Inicio de sesión ([docs/auth0.md](docs/auth0.md)) |
+| `AUTH0_CONNECTION` | `email`: inicio de sesión con código por correo, sin contraseña |
 | `AUTH_DEV_BYPASS` | Solo desarrollo: desactiva el login |
 | `SEED_DEMO` | Carga pacientes de demostración en una base vacía |
 | `MAX_UPLOAD_MB` | Tamaño máximo por documento |

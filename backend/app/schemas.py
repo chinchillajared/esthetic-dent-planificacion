@@ -193,6 +193,7 @@ class AuthConfig(Schema):
     domain: str = ""
     client_id: str = ""
     audience: str = ""
+    connection: str = ""
 
 
 class EstadoVueloDatos(Schema):

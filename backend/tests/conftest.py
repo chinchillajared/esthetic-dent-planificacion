@@ -12,6 +12,7 @@ os.environ.update({
     "AUTH0_DOMAIN": "tenant-de-prueba.us.auth0.com",
     "AUTH0_AUDIENCE": "https://api.planificador.test",
     "AUTH0_CLIENT_ID": "client-de-prueba",
+    "AUTH0_CONNECTION": "email",
     "AUTH_DEV_BYPASS": "false",
     "UPLOAD_DIR": str(_tmp / "uploads"),
     "MAX_UPLOAD_MB": "1",

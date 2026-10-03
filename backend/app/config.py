@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     auth0_domain: str = ""
     auth0_audience: str = ""
     auth0_client_id: str = ""
+    # Conexión de Auth0 que se usa para iniciar sesión, p. ej. "email" (código de un solo uso, sin contraseña).
+    # Vacío: Auth0 muestra las conexiones habilitadas para la Application.
+    auth0_connection: str = ""
     # Claim personalizado (Auth0 Action) con el nombre del usuario dentro del access token.
     auth0_name_claim: str = "https://esthetic-dent.app/name"
 

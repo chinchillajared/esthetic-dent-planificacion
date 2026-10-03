@@ -14,6 +14,7 @@ def test_health_y_config_son_publicos(client):
         "domain": "tenant-de-prueba.us.auth0.com",
         "clientId": "client-de-prueba",
         "audience": "https://api.planificador.test",
+        "connection": "email",
     }
 
 

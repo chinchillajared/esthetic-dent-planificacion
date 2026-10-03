@@ -201,6 +201,7 @@ Valores para producción:
 | `POSTGRES_DB` / `POSTGRES_USER` | `planificador` |
 | `POSTGRES_PASSWORD` | el valor de `openssl rand -hex 24` |
 | `AUTH0_DOMAIN`, `AUTH0_AUDIENCE`, `AUTH0_CLIENT_ID` | los de tu tenant ([docs/auth0.md](docs/auth0.md)) |
+| `AUTH0_CONNECTION` | `email` (código de un solo uso por correo, sin contraseña) |
 | `AUTH_DEV_BYPASS` | `false` (el backend no arranca con `true` en producción) |
 | `SEED_DEMO` | `false` |
 | `MAX_UPLOAD_MB` | `10` |
@@ -379,7 +380,7 @@ Las migraciones de la base se aplican solas al arrancar el backend. Si una versi
 - [ ] HTTPS funcionando con Let's Encrypt y `FORCE_HTTPS=true`.
 - [ ] SSH solo con llave; `root` sin acceso por SSH.
 - [ ] Firewall con solo 22, 80 y 443 abiertos.
-- [ ] Auth0 con registro deshabilitado (*Disable Sign Ups*) y MFA activado.
+- [ ] Auth0 solo con la conexión Passwordless Email, *Disable Sign Ups* activado y proveedor de correo propio configurado.
 - [ ] Respaldo diario funcionando y copiado fuera del Droplet.
 - [ ] Renovación de certificados programada (`--dry-run` exitoso).
 - [ ] `/api/docs` no responde en producción (`curl -I https://planificador.estheticdent.com/api/docs` → 404).

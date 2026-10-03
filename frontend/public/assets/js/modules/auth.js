@@ -33,7 +33,12 @@ export async function initAuth() {
   client = await createAuth0Client({
     domain: cfg.domain,
     clientId: cfg.clientId,
-    authorizationParams: { audience: cfg.audience, redirect_uri: window.location.origin },
+    authorizationParams: {
+      audience: cfg.audience,
+      redirect_uri: window.location.origin,
+      // Con "email" Auth0 pide solo el correo y envía un código de un solo uso (sin contraseña).
+      ...(cfg.connection ? { connection: cfg.connection } : {}),
+    },
     // Refresh tokens rotativos: la sesión sobrevive a recargas sin cookies de terceros.
     useRefreshTokens: true,
     cacheLocation: 'localstorage',
