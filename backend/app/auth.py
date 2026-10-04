@@ -15,6 +15,7 @@ bearer = HTTPBearer(auto_error=False)
 class User:
     sub: str
     nombre: str
+    email: str = ""
 
 
 @lru_cache
@@ -52,12 +53,13 @@ def get_current_user(
     settings: Settings = Depends(get_settings),
 ) -> User:
     if settings.auth_dev_bypass:
-        return User(sub="dev|local", nombre="Desarrollo local")
+        return User(sub="dev|local", nombre="Desarrollo local", email="")
     if not settings.auth0_configured:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "La autenticación no está configurada en el servidor.")
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise _unauthorized("Iniciá sesión para continuar.")
 
     claims = decode_token(credentials.credentials, settings)
-    nombre = claims.get(settings.auth0_name_claim) or claims.get("email") or claims["sub"]
-    return User(sub=claims["sub"], nombre=str(nombre)[:120])
+    email = str(claims.get(settings.auth0_email_claim) or claims.get("email") or "")[:120]
+    nombre = claims.get(settings.auth0_name_claim) or email or claims["sub"]
+    return User(sub=claims["sub"], nombre=str(nombre)[:120], email=email)

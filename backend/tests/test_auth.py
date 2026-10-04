@@ -8,14 +8,7 @@ from .conftest import OTHER_KEY, make_token
 
 def test_health_y_config_son_publicos(client):
     assert client.get("/api/health").json() == {"status": "ok"}
-    cfg = client.get("/api/config/auth").json()
-    assert cfg == {
-        "modo": "auth0",
-        "domain": "tenant-de-prueba.us.auth0.com",
-        "clientId": "client-de-prueba",
-        "audience": "https://api.planificador.test",
-        "connection": "email",
-    }
+    assert client.get("/api/config/auth").json() == {"modo": "auth0"}
 
 
 @pytest.mark.parametrize("path", ["/api/me", "/api/pacientes", "/api/catalogos"])
@@ -41,7 +34,7 @@ def test_tokens_invalidos_son_rechazados(client, token):
 
 
 def test_token_valido_identifica_al_usuario(auth_client):
-    assert auth_client.get("/api/me").json() == {"sub": "auth0|coordinadora", "nombre": "Ana Coordinadora"}
+    assert auth_client.get("/api/me").json() == {"sub": "auth0|coordinadora", "nombre": "Ana Coordinadora", "email": ""}
 
 
 def test_bypass_de_desarrollo_prohibido_en_produccion():

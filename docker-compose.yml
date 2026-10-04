@@ -39,7 +39,8 @@ services:
       AUTH0_DOMAIN: ${AUTH0_DOMAIN:-}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-}
       AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:-}
-      AUTH0_CONNECTION: ${AUTH0_CONNECTION:-}
+      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET:-}
+      AUTH0_CONNECTION: ${AUTH0_CONNECTION:-email}
       AUTH_DEV_BYPASS: ${AUTH_DEV_BYPASS:-false}
       AIRLABS_API_KEY: ${AIRLABS_API_KEY:-}
       SEED_DEMO: ${SEED_DEMO:-false}
@@ -85,7 +86,6 @@ services:
     environment:
       SERVER_NAME: ${SERVER_NAME:?Definí SERVER_NAME en .env}
       FORCE_HTTPS: ${FORCE_HTTPS:-false}
-      AUTH0_DOMAIN: ${AUTH0_DOMAIN:-}
     ports:
       - "${NGINX_HTTP_PORT:?Definí NGINX_HTTP_PORT en .env}:80"
       - "${NGINX_HTTPS_PORT:?Definí NGINX_HTTPS_PORT en .env}:443"

@@ -1,5 +1,5 @@
-// Cliente de la API: agrega el token de Auth0 y convierte los errores en mensajes legibles.
-import { getToken, login } from './auth.js';
+// Cliente de la API: agrega el token de la sesión y convierte los errores en mensajes legibles.
+import { getToken, sessionExpired } from './auth.js';
 
 export class ApiError extends Error {
   constructor(message, status) {
@@ -22,8 +22,8 @@ async function request(method, path, { json, form } = {}) {
   try {
     token = await getToken();
   } catch {
-    // El refresh token expiró o fue revocado: hay que volver a iniciar sesión.
-    await login();
+    // La sesión venció o fue revocada: la app vuelve a la pantalla de inicio de sesión.
+    sessionExpired();
     throw new ApiError(GENERIC[401], 401);
   }
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -47,6 +47,7 @@ async function request(method, path, { json, form } = {}) {
   const isJson = res.headers.get('content-type')?.includes('application/json');
   const data = isJson ? await res.json().catch(() => null) : null;
 
+  if (res.status === 401) sessionExpired();
   if (!res.ok) {
     const detail = typeof data?.detail === 'string' ? data.detail : null;
     throw new ApiError(detail || GENERIC[res.status] || 'Ocurrió un error en el servidor. Intentá de nuevo.', res.status);

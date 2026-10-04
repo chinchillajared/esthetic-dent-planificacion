@@ -1,16 +1,65 @@
-// Inicio de sesión con Auth0 (Authorization Code + PKCE mediante auth0-spa-js).
-// La configuración pública (dominio, Client ID y audience) la entrega el backend en /api/config/auth.
+// Sesión: inicio con código de un solo uso por correo, dentro de la pantalla de la app.
+// Con Auth0 habla el backend (/api/auth/*); el access token vive solo en memoria y la sesión
+// se recupera al recargar con la cookie HttpOnly del refresh token.
 
-let client = null;
 let mode = 'auth0';
+let accessToken = null;
+let expiresAt = 0;
+let refreshing = null;
 let user = null;
 
+const SAFETY_MS = 60_000; // renueva el token cuando le falta menos de un minuto
+
+export class AuthError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+  }
+}
+
+async function post(path, json) {
+  let res;
+  try {
+    res = await fetch(path, {
+      method: 'POST',
+      headers: { Accept: 'application/json', ...(json ? { 'Content-Type': 'application/json' } : {}) },
+      body: json ? JSON.stringify(json) : undefined,
+      credentials: 'same-origin',
+    });
+  } catch {
+    throw new AuthError('No se pudo conectar con el servidor. Revisá tu conexión.', 0);
+  }
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    const detail = typeof data?.detail === 'string' ? data.detail : 'No se pudo iniciar sesión. Intentá de nuevo.';
+    throw new AuthError(detail, res.status);
+  }
+  return data;
+}
+
+function storeSession(session) {
+  accessToken = session.accessToken;
+  expiresAt = Date.now() + session.expiresIn * 1000;
+}
+
+async function loadUser() {
+  const res = await fetch('/api/me', { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } });
+  const me = res.ok ? await res.json() : {};
+  user = { name: me.nombre || me.email || 'Usuario', email: me.email || '' };
+}
+
+/** Renueva el access token con la cookie (una sola renovación a la vez). */
+function refresh() {
+  refreshing ??= post('/api/auth/refresh')
+    .then(storeSession)
+    .finally(() => { refreshing = null; });
+  return refreshing;
+}
+
 /**
- * Prepara la sesión. Devuelve:
- *  { status: 'ok' }            sesión iniciada (o modo desarrollo)
- *  { status: 'login' }         hay que iniciar sesión
- *  { status: 'sin-configurar' } Auth0 todavía no está configurado en el servidor
- *  { status: 'error', message }
+ * Prepara la sesión al abrir la app:
+ *  { status: 'ok' } · { status: 'login' } · { status: 'sin-configurar' } · { status: 'error', message }
  */
 export async function initAuth() {
   let cfg;
@@ -29,55 +78,48 @@ export async function initAuth() {
   }
   if (cfg.modo !== 'auth0') return { status: 'sin-configurar' };
 
-  const { createAuth0Client } = await import('../vendor/auth0-spa-js.js');
-  client = await createAuth0Client({
-    domain: cfg.domain,
-    clientId: cfg.clientId,
-    authorizationParams: {
-      audience: cfg.audience,
-      redirect_uri: window.location.origin,
-      // Con "email" Auth0 pide solo el correo y envía un código de un solo uso (sin contraseña).
-      ...(cfg.connection ? { connection: cfg.connection } : {}),
-    },
-    // Refresh tokens rotativos: la sesión sobrevive a recargas sin cookies de terceros.
-    useRefreshTokens: true,
-    cacheLocation: 'localstorage',
-  });
-
-  const params = new URLSearchParams(window.location.search);
-  if (params.has('code') && params.has('state')) {
-    try {
-      const { appState } = await client.handleRedirectCallback();
-      window.history.replaceState({}, document.title, `${window.location.pathname}${appState?.hash ?? ''}`);
-    } catch {
-      window.history.replaceState({}, document.title, window.location.pathname);
-      return { status: 'error', message: 'No se pudo completar el inicio de sesión. Intentá de nuevo.' };
-    }
-  } else if (params.has('error')) {
-    const message = params.get('error_description') || 'Auth0 rechazó el inicio de sesión.';
-    window.history.replaceState({}, document.title, window.location.pathname);
-    return { status: 'error', message };
+  try {
+    await refresh();
+    await loadUser();
+    return { status: 'ok' };
+  } catch (err) {
+    if (err.status === 401) return { status: 'login' };
+    return { status: 'error', message: err.message };
   }
+}
 
-  if (!(await client.isAuthenticated())) return { status: 'login' };
-  user = await client.getUser();
-  return { status: 'ok' };
+/** Paso 1: Auth0 envía el código al correo. */
+export function requestCode(email) {
+  return post('/api/auth/code', { email });
+}
+
+/** Paso 2: canjea el código por la sesión. */
+export async function verifyCode(email, code) {
+  storeSession(await post('/api/auth/token', { email, code }));
+  await loadUser();
+  if (!user.email) user.email = email;
 }
 
 export const isDevMode = () => mode === 'dev';
 export const currentUser = () => user;
 
-export function login() {
-  return client?.loginWithRedirect({ appState: { hash: window.location.hash } });
+export async function logout() {
+  accessToken = null;
+  expiresAt = 0;
+  user = null;
+  await post('/api/auth/logout').catch(() => {});
 }
 
-export function logout() {
-  if (!client) return;
-  client.logout({ logoutParams: { returnTo: window.location.origin } });
-}
-
-/** Access token para la API; null en modo desarrollo. */
+/** Access token vigente para la API; null en modo desarrollo. Lanza AuthError(401) si la sesión venció. */
 export async function getToken() {
-  if (mode === 'dev' || !client) return null;
-  return client.getTokenSilently();
+  if (mode === 'dev') return null;
+  if (!accessToken || Date.now() > expiresAt - SAFETY_MS) await refresh();
+  return accessToken;
+}
+
+/** Avisa a la app que la sesión venció (la API respondió 401). */
+export function sessionExpired() {
+  accessToken = null;
+  expiresAt = 0;
+  window.dispatchEvent(new CustomEvent('auth:expired'));
 }

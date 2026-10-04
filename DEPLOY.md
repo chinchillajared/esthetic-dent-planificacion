@@ -19,7 +19,7 @@ Necesitás:
 
 - [ ] Una cuenta de DigitalOcean.
 - [ ] Un dominio o subdominio y acceso a su DNS (por ejemplo `planificador.estheticdent.com`).
-- [ ] Auth0 configurado según [docs/auth0.md](docs/auth0.md) (dominio, audience y Client ID a mano).
+- [ ] Auth0 configurado según [docs/auth0.md](docs/auth0.md) (dominio, audience, Client ID y Client Secret a mano).
 - [ ] Opcional: la clave de AirLabs para el estado de vuelos.
 - [ ] El código en un repositorio Git privado (GitHub, GitLab…). Si no lo tenés, en el paso 5 hay una alternativa con `rsync`.
 - [ ] Una llave SSH en tu computadora (`ssh-keygen -t ed25519` si no tenés una).
@@ -201,6 +201,7 @@ Valores para producción:
 | `POSTGRES_DB` / `POSTGRES_USER` | `planificador` |
 | `POSTGRES_PASSWORD` | el valor de `openssl rand -hex 24` |
 | `AUTH0_DOMAIN`, `AUTH0_AUDIENCE`, `AUTH0_CLIENT_ID` | los de tu tenant ([docs/auth0.md](docs/auth0.md)) |
+| `AUTH0_CLIENT_SECRET` | Client Secret de la Regular Web Application (**secreto**) |
 | `AUTH0_CONNECTION` | `email` (código de un solo uso por correo, sin contraseña) |
 | `AUTH_DEV_BYPASS` | `false` (el backend no arranca con `true` en producción) |
 | `SEED_DEMO` | `false` |
@@ -287,11 +288,7 @@ docker compose --profile certbot run --rm certbot renew --webroot -w /var/www/ce
 
 ## 9. Auth0 en producción
 
-En la Application de Auth0 (**Settings**), agregá la URL de producción en:
-
-- **Allowed Callback URLs**: `https://planificador.estheticdent.com`
-- **Allowed Logout URLs**: `https://planificador.estheticdent.com`
-- **Allowed Web Origins**: `https://planificador.estheticdent.com`
+El inicio de sesión se hace en la pantalla de la app y el backend habla con Auth0, así que no hay URLs de retorno que configurar. Verificá solamente que en el `.env` estén las cinco variables `AUTH0_*` (incluida `AUTH0_CLIENT_SECRET`) y `AUTH_DEV_BYPASS=false`.
 
 Entrá a `https://planificador.estheticdent.com`, iniciá sesión y verificá que en la barra lateral aparecen tu nombre y el botón de cerrar sesión (y **no** el aviso de «Modo desarrollo»).
 
@@ -395,8 +392,8 @@ Las migraciones de la base se aplican solas al arrancar el backend. Si una versi
 | El backend no arranca: «AUTH_DEV_BYPASS solo se permite con ENVIRONMENT=development» | Poné `AUTH_DEV_BYPASS=false` en producción. |
 | La construcción se corta (*Killed*) | Falta memoria: verificá el swap (paso 3.4) o usá un Droplet más grande. |
 | `certbot` falla con *Connection refused* o *NXDOMAIN* | El DNS todavía no apunta al Droplet o el puerto 80 está cerrado (pasos 2 y 3.3). |
-| La pantalla dice «El inicio de sesión todavía no está configurado» | Faltan `AUTH0_DOMAIN`, `AUTH0_AUDIENCE` o `AUTH0_CLIENT_ID` en `.env`; después `docker compose up -d`. |
-| Auth0 muestra «Callback URL mismatch» | Falta la URL de producción en la Application de Auth0 (paso 9). |
+| La pantalla dice «El inicio de sesión todavía no está configurado» | Falta alguna variable `AUTH0_*` (incluida `AUTH0_CLIENT_SECRET`) en `.env`; después `docker compose up -d`. |
+| Al pedir o canjear el código aparece un error de Auth0 | Ver la tabla de mensajes en [docs/auth0.md](docs/auth0.md#9-probar). |
 | El estado de vuelo dice «Sin conexión a AirLabs» | Falta `AIRLABS_API_KEY` en `.env`; después `docker compose up -d backend`. |
 | El navegador avisa que el certificado no es válido | Todavía se usa el autofirmado: repetí el paso 8.1 y reiniciá nginx. |
 

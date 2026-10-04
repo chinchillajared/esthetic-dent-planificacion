@@ -23,20 +23,14 @@ def health(db: Session = Depends(get_db)):
 
 @router.get("/config/auth", response_model=schemas.AuthConfig)
 def auth_config(settings: Settings = Depends(get_settings)):
-    # Dominio, Client ID y audience son públicos: el frontend los necesita para iniciar sesión.
+    # El navegador solo necesita saber si hay inicio de sesión; con Auth0 habla el backend.
     if settings.auth_dev_bypass:
         return schemas.AuthConfig(modo="desarrollo")
-    if not (settings.auth0_configured and settings.auth0_client_id):
+    if not settings.login_configured:
         return schemas.AuthConfig(modo="sin-configurar")
-    return schemas.AuthConfig(
-        modo="auth0",
-        domain=settings.auth0_domain,
-        client_id=settings.auth0_client_id,
-        audience=settings.auth0_audience,
-        connection=settings.auth0_connection,
-    )
+    return schemas.AuthConfig(modo="auth0")
 
 
 @router.get("/me", response_model=schemas.Me)
 def me(user: User = Depends(get_current_user)):
-    return schemas.Me(sub=user.sub, nombre=user.nombre)
+    return schemas.Me(sub=user.sub, nombre=user.nombre, email=user.email)

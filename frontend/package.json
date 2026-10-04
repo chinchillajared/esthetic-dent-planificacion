@@ -11,7 +11,6 @@
     "check": "npm run lint && npm run validate:html"
   },
   "devDependencies": {
-    "@auth0/auth0-spa-js": "^2.28.2",
     "@eslint/js": "^10.0.1",
     "@fontsource/cabin": "^5.3.0",
     "@fontsource/share-tech": "^5.3.0",

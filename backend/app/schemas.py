@@ -190,10 +190,20 @@ class EtapaIn(Schema):
 
 class AuthConfig(Schema):
     modo: Literal["auth0", "desarrollo", "sin-configurar"]
-    domain: str = ""
-    client_id: str = ""
-    audience: str = ""
-    connection: str = ""
+
+
+class LoginCodeIn(Schema):
+    email: Email
+
+
+class LoginVerifyIn(Schema):
+    email: Email
+    code: Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^\d{4,8}$")]
+
+
+class SessionOut(Schema):
+    access_token: str
+    expires_in: int
 
 
 class EstadoVueloDatos(Schema):
@@ -238,3 +248,4 @@ class ActualizarEstadoIn(Schema):
 class Me(Schema):
     sub: str
     nombre: str
+    email: str = ""

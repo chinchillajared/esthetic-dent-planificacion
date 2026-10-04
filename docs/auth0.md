@@ -1,131 +1,92 @@
-# Configurar Auth0 (inicio de sesión con código por correo, sin contraseña)
+# Configurar Auth0 (código por correo, sin contraseña, en la pantalla de la app)
 
-El equipo inicia sesión escribiendo su correo y el **código de un solo uso (OTP)** que Auth0 le envía. No hay contraseñas.
+El equipo inicia sesión **dentro del planificador**: escribe su correo, recibe un **código de 6 dígitos** y lo escribe en la misma pantalla. No hay contraseñas ni se pasa por la pantalla de Auth0.
 
-El frontend obtiene un *access token* (flujo Authorization Code + PKCE) y el backend lo valida en cada solicitud (firma RS256, emisor, audiencia y vencimiento).
+Quien habla con Auth0 es el **backend**: pide el código (`/passwordless/start`) y lo canjea (grant *Passwordless OTP*) con la **client secret**, que nunca llega al navegador. Por eso la aplicación de Auth0 es de tipo **Regular Web Application** (Auth0 no permite ese canje en aplicaciones SPA).
 
-Vas a crear en Auth0: una **API**, una **Application**, la conexión **Passwordless Email**, un **proveedor de correo** y una **Action**.
+La sesión: el *access token* vive solo en memoria del navegador y se renueva con el *refresh token*, que queda en una cookie `HttpOnly` (el JavaScript no puede leerla). Al recargar la página la sesión se recupera sola.
 
-> Reemplazá `https://planificador.estheticdent.com` por el dominio real. En local el sitio corre en `http://localhost:8081`.
+## 1. Tenant
 
-## 1. Crear el tenant
+<https://auth0.com> → creá el tenant (p. ej. `esthetic-dent`, región US). Tu dominio es `esthetic-dent.us.auth0.com` → `AUTH0_DOMAIN`.
 
-1. Entrá a <https://auth0.com> y creá una cuenta (el plan gratuito alcanza).
-2. Nombre del tenant, p. ej. `esthetic-dent`; región **US**.
-3. Tu dominio queda como `esthetic-dent.us.auth0.com` → es `AUTH0_DOMAIN`.
-
-## 2. Crear la API
+## 2. API
 
 **Applications → APIs → Create API**
 
 | Campo | Valor |
 |---|---|
 | Name | Planificador de pacientes |
-| Identifier | `https://api.planificador.estheticdent` (solo un identificador; no tiene que existir) → es `AUTH0_AUDIENCE` |
+| Identifier | `https://api.planificador.estheticdent` → `AUTH0_AUDIENCE` |
 | Signing Algorithm | RS256 |
 
-En la pestaña **Settings** de la API activá **Allow Offline Access** (necesario para mantener la sesión al recargar) y guardá.
+En **Settings** de la API: activá **Allow Offline Access** (necesario para el refresh token). **Token Expiration**: `3600` (1 hora).
 
-## 3. Crear la Application
+## 3. Application (Regular Web Application)
 
-**Applications → Applications → Create Application → Single Page Web Applications**
-
-1. En **Settings** copiá el **Client ID** → es `AUTH0_CLIENT_ID`. (El *Client Secret* no se usa.)
-2. **Application URIs** (las dos direcciones separadas por coma):
-
-   | Campo | Valor |
-   |---|---|
-   | Allowed Callback URLs | `http://localhost:8081, https://planificador.estheticdent.com` |
-   | Allowed Logout URLs | `http://localhost:8081, https://planificador.estheticdent.com` |
-   | Allowed Web Origins | `http://localhost:8081, https://planificador.estheticdent.com` |
-
-3. **Refresh Token Rotation**: activá **Allow Refresh Token Rotation**.
-4. **Save Changes**.
-
-## 4. Activar el código por correo (Passwordless Email)
-
-**Authentication → Passwordless → Email** (activá el interruptor y abrí la configuración).
+**Applications → Applications → Create Application → Regular Web Applications**
 
 En **Settings**:
 
+1. Copiá **Client ID** → `AUTH0_CLIENT_ID` y **Client Secret** → `AUTH0_CLIENT_SECRET`.
+   > El Client Secret es **secreto**: va solo en el `.env` del servidor. Nunca en el código, en Git ni por chat.
+2. **Refresh Token Rotation**: activá **Rotation**, con un **Rotation Overlap Period** de unos `10` segundos (varias pestañas abiertas no se pisan). Ajustá **Inactivity Expiration** / **Absolute Expiration** según cuánto debe durar la sesión (p. ej. 7 y 30 días).
+3. **Advanced Settings → Grant Types**: marcá **Passwordless OTP** y **Refresh Token**.
+4. **Save Changes**.
+
+No hace falta completar *Allowed Callback URLs* ni *Logout URLs*: el navegador no va a Auth0.
+
+## 4. Código por correo (Passwordless Email)
+
+**Authentication → Passwordless → Email** → activalo.
+
 | Campo | Valor |
 |---|---|
-| From | `Esthetic Dent <no-responder@estheticdent.com>` (no puede ser de `auth0.com`) |
+| From | `Esthetic Dent <no-responder@estheticdentcr.com>` (no puede ser de `auth0.com`) |
 | Subject | `Tu código para el Planificador de pacientes` |
-| Message | Dejá la plantilla; contiene `{{ code }}` |
-| OTP Expiry | `300` segundos (5 minutos) |
+| Message | Personalizá la plantilla (debe incluir `{{ code }}`) |
+| OTP Expiry | `300` segundos |
 | OTP Length | `6` |
-| Disable Sign Ups | **Activado** — solo entran usuarios creados por ustedes |
+| **Disable Sign Ups** | **Activado** — solo entran usuarios creados por ustedes |
 
-**Save**. En la pestaña **Applications** de esa misma ventana, activá **Planificador de pacientes**.
+**Save**. En la pestaña **Applications** activá **Planificador de pacientes**.
 
-> Después de 3 códigos incorrectos hay que pedir uno nuevo.
-
-### 4.1 Quitar las contraseñas
-
-En **Applications → Applications → Planificador de pacientes → Connections**:
-
-- **Desactivá** `Username-Password-Authentication` (y cualquier red social).
-- Debe quedar activa **solo** la conexión `email`.
-
-Además la app fuerza esa conexión con `AUTH0_CONNECTION=email`, así que nunca se muestra la pantalla de contraseña.
-
-### 4.2 Pantalla de inicio de sesión
-
-**Authentication → Authentication Profile** → elegí **Identifier First** y guardá.
+En la Application → pestaña **Connections**: dejá activa **solo** `email` (desactivá *Username-Password-Authentication*).
 
 ## 5. Proveedor de correo (obligatorio en producción)
 
-El correo que trae Auth0 de fábrica es solo para pruebas (envía pocos correos y puede caer en spam).
+El correo de fábrica de Auth0 es solo para pruebas. **Branding → Email Provider → Use my own email provider**: SMTP del dominio (Google Workspace, Microsoft 365…) o un servicio (SendGrid, Mailgun, Amazon SES…). Enviá un **correo de prueba** y guardá. Agregá los registros SPF/DKIM que pida el proveedor para no caer en spam.
 
-**Branding → Email Provider** → activá **Use my own email provider** y elegí uno:
+## 6. Usuarios del equipo
 
-- **SMTP** con el correo del dominio (Google Workspace, Microsoft 365, Zoho…), o
-- un servicio de envío: SendGrid, Mailgun, Amazon SES, Postmark…
+**User Management → Users → Create User** → **Connection: email** → correo de la persona. Sin contraseña.
 
-Completá los datos, enviá un **correo de prueba** y guardá. Usá la misma dirección del campo **From** del paso 4.
+En el usuario podés completar **Name** (aparece en los comentarios). Para quitar el acceso: **Block** o **Delete**; además, el refresh token se puede revocar en **Users → (usuario) → Authorized Applications**.
 
-> Para que no llegue a spam, el proveedor te pedirá agregar registros SPF/DKIM en el DNS del dominio.
+## 7. Action: nombre y correo en el token
 
-## 6. Crear a las personas del equipo
-
-**User Management → Users → Create User**
-
-- **Connection**: `email`
-- **Email**: el correo de la persona
-
-No hay contraseña que definir: la primera vez que entre, recibirá su código.
-
-Para quitarle el acceso a alguien: abrí el usuario y usá **Block** (o **Delete**).
-
-## 7. Action: nombre del usuario en el token
-
-El backend registra quién escribe cada comentario y quién modifica cada paciente.
-
-**Actions → Library → Create Action → Build from scratch** (trigger: *Login / Post Login*):
+**Actions → Library → Create Action → Build from scratch** (trigger *Login / Post Login*):
 
 ```js
 exports.onExecutePostLogin = async (event, api) => {
   const name = event.user.name || event.user.nickname || event.user.email;
   api.accessToken.setCustomClaim('https://esthetic-dent.app/name', name);
+  api.accessToken.setCustomClaim('https://esthetic-dent.app/email', event.user.email);
 };
 ```
 
-**Deploy**. Luego en **Actions → Triggers → post-login** arrastrala entre *Start* y *Complete* y **Apply**.
+**Deploy** → **Actions → Triggers → post-login**: arrastrala entre *Start* y *Complete* → **Apply**.
 
-> Con usuarios de correo sin contraseña, el nombre visible es el correo. Si querés que aparezca el nombre real, en **User Management → Users → (usuario)** editá **Name**.
-
-## 8. Completar el `.env`
+## 8. `.env`
 
 ```dotenv
 AUTH0_DOMAIN=esthetic-dent.us.auth0.com
 AUTH0_AUDIENCE=https://api.planificador.estheticdent
-AUTH0_CLIENT_ID=<Client ID de la Application>
+AUTH0_CLIENT_ID=<Client ID>
+AUTH0_CLIENT_SECRET=<Client Secret>
 AUTH0_CONNECTION=email
 AUTH_DEV_BYPASS=false
 ```
-
-Dominio, audience, Client ID y conexión **no son secretos**.
 
 ```bash
 docker compose up -d backend nginx
@@ -133,23 +94,29 @@ docker compose up -d backend nginx
 
 ## 9. Probar
 
-1. Abrí el sitio → **Iniciar sesión**.
-2. Auth0 pide solo el **correo** → llega un código de 6 dígitos → lo escribís.
-3. Volvés a la app con tu nombre (o correo) abajo en la barra lateral y sin el aviso de «Modo desarrollo».
-4. Recargá la página: la sesión se mantiene sin pedir otro código.
+1. Abrí el sitio: aparece **Iniciar sesión** con el campo de correo.
+2. **Continuar** → llega el código → escribilo (con los 6 dígitos entra solo).
+3. Ves la app con tu nombre abajo en la barra lateral, sin el aviso de «Modo desarrollo».
+4. Recargá: la sesión se mantiene. **Cerrar sesión** vuelve a la pantalla de correo.
 
-| Problema | Solución |
+| Mensaje en la pantalla | Solución |
 |---|---|
-| Aparece la pantalla de contraseña | Revisá el paso 4.1 y que `AUTH0_CONNECTION=email` esté en `.env` (y repetí `docker compose up -d backend nginx`). |
-| «Callback URL mismatch» | La dirección del sitio no está en el paso 3.2. |
-| No llega el código | Revisá spam y el proveedor de correo (paso 5); usá *Send test email*. |
-| «Signups disabled» / «user does not exist» | El correo no fue creado como usuario (paso 6). |
-| Pide código en cada recarga | Falta **Allow Offline Access** (paso 2) o **Refresh Token Rotation** (paso 3.3). |
-| En los comentarios aparece un código raro en vez del nombre | La Action del paso 7 no está en *Triggers → post-login*. |
+| «El inicio de sesión todavía no está configurado…» | Falta alguna variable `AUTH0_*` (incluida la secret) en `.env`. |
+| «Falta habilitar el grant Passwordless OTP…» | Paso 3.3. |
+| «Auth0 rechazó las credenciales…» | Client ID o Client Secret mal copiados. |
+| «Ese correo no tiene acceso al planificador…» | El correo no está creado como usuario (paso 6). |
+| «El inicio de sesión por correo no está habilitado en Auth0» | Paso 4: Passwordless Email activo y habilitado para la aplicación. |
+| No llega el código | Spam / proveedor de correo (paso 5). |
+| «Se enviaron demasiados códigos…» | Máximo 5 códigos por correo cada 10 minutos: esperá un poco. |
 
-## Cómo funciona
+## Rutas del backend
 
-- El frontend descarga `/api/config/auth`, inicia sesión con `auth0-spa-js` (servido desde el propio dominio, conexión forzada `email`) y mantiene la sesión con *refresh tokens* rotativos.
-- Cada llamada a `/api/...` lleva `Authorization: Bearer <token>`.
-- El backend descarga las llaves públicas del tenant (`/.well-known/jwks.json`, en caché) y rechaza con `401` cualquier token vencido, de otra API, de otro tenant o mal firmado.
-- `AUTH_DEV_BYPASS=true` desactiva la autenticación **solo** con `ENVIRONMENT=development`; en producción el backend se niega a arrancar con esa opción.
+| Método y ruta | Uso |
+|---|---|
+| `GET /api/config/auth` | `{modo}`: `auth0`, `desarrollo` o `sin-configurar` |
+| `POST /api/auth/code` | `{email}` → Auth0 envía el código (`204`) |
+| `POST /api/auth/token` | `{email, code}` → `{accessToken, expiresIn}` + cookie `pp_refresh` |
+| `POST /api/auth/refresh` | Renueva con la cookie → `{accessToken, expiresIn}` (`401` si venció) |
+| `POST /api/auth/logout` | Revoca el refresh token en Auth0 y borra la cookie (`204`) |
+
+`AUTH_DEV_BYPASS=true` desactiva el inicio de sesión **solo** con `ENVIRONMENT=development`; en producción el backend se niega a arrancar con esa opción.

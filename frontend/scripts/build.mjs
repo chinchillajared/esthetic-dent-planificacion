@@ -24,13 +24,6 @@ for (const [from, to] of fonts) {
   cpSync(join(modules, from), join(dist, 'assets/fonts', to));
 }
 
-// Librería de Auth0 servida desde nuestro dominio (la CSP solo permite scripts propios).
-mkdirSync(join(dist, 'assets/js/vendor'), { recursive: true });
-cpSync(
-  join(modules, '@auth0/auth0-spa-js/dist/auth0-spa-js.production.esm.js'),
-  join(dist, 'assets/js/vendor/auth0-spa-js.js'),
-);
-
 execFileSync(
   process.execPath,
   [

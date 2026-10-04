@@ -43,15 +43,58 @@
   </svg>
 
   <!-- Acceso: cargando, iniciar sesión o error -->
-  <section class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
-    <div class="auth-card">
-      <img src="/assets/img/logo.jpeg" alt="Esthetic Dent International" width="112" height="112" class="mx-auto size-28 rounded-full ring-1 ring-line">
-      <h1 id="auth-title" class="mt-5 text-center text-2xl font-bold">Planificador de pacientes</h1>
-      <p class="mt-2 text-center text-muted" id="auth-text">Verificando tu sesión…</p>
-      <div class="auth-spinner mt-6" id="auth-spinner" aria-hidden="true"></div>
-      <button class="btn btn-primary mt-6 w-full" type="button" id="auth-login" hidden>Iniciar sesión</button>
-      <button class="btn btn-ghost mt-6 w-full" type="button" id="auth-retry" hidden>Intentar de nuevo</button>
-      <p class="mt-6 text-center text-xs text-muted">Acceso exclusivo para el equipo de Esthetic Dent International.</p>
+  <section class="auth-screen" id="auth-screen" aria-label="Acceso al planificador">
+    <div class="auth-wrap">
+      <img src="/assets/img/logo.jpeg" alt="Esthetic Dent International" width="88" height="88" class="auth-logo">
+      <h1 class="sr-only">Planificador de pacientes · Esthetic Dent International</h1>
+
+      <div class="auth-card">
+        <!-- Verificando la sesión o mostrando un error -->
+        <div id="auth-status">
+          <h2 class="auth-heading">Planificador de pacientes</h2>
+          <p class="auth-sub" id="auth-text">Verificando tu sesión…</p>
+          <div class="auth-spinner mt-6" id="auth-spinner" aria-hidden="true"></div>
+          <button class="btn btn-ghost mt-6 w-full" type="button" id="auth-retry" hidden>Intentar de nuevo</button>
+        </div>
+
+        <!-- Paso 1: correo -->
+        <form id="login-email" class="grid gap-4" novalidate hidden>
+          <div>
+            <h2 class="auth-heading">Iniciar sesión</h2>
+            <p class="eyebrow mt-1">Planificador de pacientes</p>
+          </div>
+          <label class="field"><span>Correo electrónico</span>
+            <input class="control" type="email" name="email" autocomplete="email" inputmode="email" maxlength="120" required>
+          </label>
+          <p class="auth-error" role="alert" hidden></p>
+          <button class="btn btn-primary w-full" type="submit">Continuar</button>
+          <p class="auth-help">Te enviaremos un código de un solo uso a tu correo.</p>
+          <p class="auth-footnote">¿No tenés acceso? Pedile a un administrador que dé de alta tu correo.</p>
+        </form>
+
+        <!-- Paso 2: código -->
+        <form id="login-code" class="grid gap-4" novalidate hidden>
+          <button class="link-action justify-self-start" type="button" id="login-change-email">
+            <svg class="icon icon-sm rotate-180" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+            Cambiar correo
+          </button>
+          <div>
+            <h2 class="auth-heading">Revisá tu correo</h2>
+            <p class="auth-sub mt-1">Enviamos un código de 6 dígitos a <strong id="login-email-shown"></strong></p>
+          </div>
+          <label class="field"><span>Código</span>
+            <input class="control otp-input" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="······" required>
+          </label>
+          <p class="auth-error" role="alert" hidden></p>
+          <button class="btn btn-primary w-full" type="submit">Entrar</button>
+          <div class="flex items-center justify-between gap-3">
+            <p class="auth-help">El código vence en 5 minutos.</p>
+            <button class="link-action text-xs" type="button" id="login-resend">Reenviar código</button>
+          </div>
+        </form>
+      </div>
+
+      <p class="auth-copy">© <span id="auth-year">2026</span> Esthetic Dent International</p>
     </div>
   </section>
 

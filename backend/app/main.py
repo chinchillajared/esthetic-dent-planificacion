@@ -4,7 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from .config import get_settings
-from .routers import catalogos, pacientes, sistema, vuelos_estado
+from .routers import catalogos, pacientes, sesion, sistema, vuelos_estado
 
 settings = get_settings()
 
@@ -42,6 +42,7 @@ async def no_store_api(request: Request, call_next):
 
 
 app.include_router(sistema.router)
+app.include_router(sesion.router)
 app.include_router(catalogos.router)
 app.include_router(pacientes.router)
 app.include_router(vuelos_estado.router)

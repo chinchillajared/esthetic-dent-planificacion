@@ -1,5 +1,5 @@
 // Punto de entrada: navegación entre vistas, filtros y sincronización con el estado.
-import { currentUser, initAuth, isDevMode, login, logout } from './modules/auth.js';
+import { currentUser, initAuth, isDevMode, logout, requestCode, verifyCode } from './modules/auth.js';
 import { formatMonth, h, initials } from './modules/dom.js';
 import { loadFlightStatus } from './modules/flight-status.js';
 import { openFicha, refreshCatalogOptions } from './modules/ficha.js';
@@ -9,7 +9,7 @@ import {
 } from './modules/store.js';
 import { setupStageDrag } from './modules/stage-drag.js';
 import { renderTrips } from './modules/trips.js';
-import { installErrorHandlers } from './modules/ui.js';
+import { installErrorHandlers, toast } from './modules/ui.js';
 import { renderDocuments, renderPatients, renderSettings, setupSettings } from './modules/views.js';
 
 installErrorHandlers();
@@ -144,26 +144,158 @@ function showView({ focus = true } = {}) {
 window.addEventListener('hashchange', () => showView());
 document.querySelectorAll('[data-action="new-patient"]').forEach((b) => b.addEventListener('click', () => openFicha()));
 
-/* ---------- Arranque: sesión → datos → interfaz ---------- */
+/* ---------- Acceso: correo → código de un solo uso → datos → interfaz ---------- */
 const authScreen = document.getElementById('auth-screen');
 const appShell = document.getElementById('app-shell');
+const authStatus = document.getElementById('auth-status');
 const authText = document.getElementById('auth-text');
 const authSpinner = document.getElementById('auth-spinner');
-const loginButton = document.getElementById('auth-login');
 const retryButton = document.getElementById('auth-retry');
+const emailForm = document.getElementById('login-email');
+const codeForm = document.getElementById('login-code');
+const resendButton = document.getElementById('login-resend');
+document.getElementById('auth-year').textContent = String(new Date().getFullYear());
 
-function showAuth({ text, action = null }) {
+let loginEmail = '';
+let resendTimer = null;
+
+function showPanel(panel) {
   authScreen.hidden = false;
   appShell.hidden = true;
-  authText.textContent = text;
-  authSpinner.hidden = action !== null;
-  loginButton.hidden = action !== 'login';
-  retryButton.hidden = action !== 'retry';
+  authStatus.hidden = panel !== authStatus;
+  emailForm.hidden = panel !== emailForm;
+  codeForm.hidden = panel !== codeForm;
 }
+
+function showStatus(text, { retry = false } = {}) {
+  showPanel(authStatus);
+  authText.textContent = text;
+  authSpinner.hidden = retry;
+  retryButton.hidden = !retry;
+}
+
+function setError(form, message) {
+  const box = form.querySelector('.auth-error');
+  box.textContent = message ?? '';
+  box.hidden = !message;
+}
+
+function setBusy(form, busy, label) {
+  const button = form.querySelector('[type="submit"]');
+  button.disabled = busy;
+  if (label) button.textContent = label;
+}
+
+function showEmailStep(message = '') {
+  showPanel(emailForm);
+  setError(emailForm, message);
+  emailForm.elements.email.value = loginEmail;
+  emailForm.elements.email.focus();
+}
+
+// "Reenviar código" se habilita después de 30 segundos.
+function startResendCountdown() {
+  clearInterval(resendTimer);
+  let left = 30;
+  const tick = () => {
+    resendButton.disabled = left > 0;
+    resendButton.textContent = left > 0 ? `Reenviar código (${left})` : 'Reenviar código';
+    left -= 1;
+    if (left < -1) clearInterval(resendTimer);
+  };
+  tick();
+  resendTimer = setInterval(tick, 1000);
+}
+
+function showCodeStep() {
+  showPanel(codeForm);
+  setError(codeForm, '');
+  document.getElementById('login-email-shown').textContent = loginEmail;
+  codeForm.elements.code.value = '';
+  codeForm.elements.code.focus();
+  startResendCountdown();
+}
+
+emailForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = emailForm.elements.email.value.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    setError(emailForm, 'Escribí un correo electrónico válido.');
+    emailForm.elements.email.focus();
+    return;
+  }
+  setError(emailForm, '');
+  setBusy(emailForm, true, 'Enviando código…');
+  try {
+    await requestCode(email);
+    loginEmail = email;
+    showCodeStep();
+  } catch (err) {
+    setError(emailForm, err.message);
+  } finally {
+    setBusy(emailForm, false, 'Continuar');
+  }
+});
+
+// Solo dígitos; al completar los 6 se envía solo.
+codeForm.elements.code.addEventListener('input', () => {
+  const input = codeForm.elements.code;
+  input.value = input.value.replace(/\D/g, '').slice(0, 6);
+  if (input.value.length === 6) codeForm.requestSubmit();
+});
+
+codeForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const code = codeForm.elements.code.value.trim();
+  if (!/^\d{6}$/.test(code)) {
+    setError(codeForm, 'Escribí los 6 dígitos del código.');
+    return;
+  }
+  setError(codeForm, '');
+  setBusy(codeForm, true, 'Verificando…');
+  try {
+    await verifyCode(loginEmail, code);
+    clearInterval(resendTimer);
+    await enterApp();
+  } catch (err) {
+    setError(codeForm, err.message);
+    codeForm.elements.code.select();
+  } finally {
+    setBusy(codeForm, false, 'Entrar');
+  }
+});
+
+resendButton.addEventListener('click', async () => {
+  try {
+    await requestCode(loginEmail);
+    setError(codeForm, '');
+    toast('Te enviamos un código nuevo.');
+    startResendCountdown();
+  } catch (err) {
+    setError(codeForm, err.message);
+  }
+});
+
+document.getElementById('login-change-email').addEventListener('click', () => {
+  clearInterval(resendTimer);
+  showEmailStep();
+});
+
+retryButton.addEventListener('click', () => start());
+
+document.getElementById('logout').addEventListener('click', async () => {
+  await logout();
+  showEmailStep();
+});
+
+// La API respondió 401: la sesión venció o fue revocada.
+window.addEventListener('auth:expired', () => {
+  if (!appShell.hidden) showEmailStep('Tu sesión expiró. Iniciá sesión de nuevo.');
+});
 
 function showUser() {
   const user = currentUser() ?? {};
-  const name = user.name || user.nickname || user.email || 'Usuario';
+  const name = user.name || user.email || 'Usuario';
   document.getElementById('user-name').textContent = name;
   document.getElementById('user-email').textContent = user.email && user.email !== name ? user.email : 'Esthetic Dent International';
   document.getElementById('user-initials').textContent = initials(name) || 'ED';
@@ -171,32 +303,10 @@ function showUser() {
   document.getElementById('logout').hidden = isDevMode();
 }
 
-loginButton.addEventListener('click', () => {
-  showAuth({ text: 'Redirigiendo al inicio de sesión…' });
-  login();
-});
-retryButton.addEventListener('click', () => start());
-document.getElementById('logout').addEventListener('click', () => logout());
-
 let started = false;
 
-async function start() {
-  showAuth({ text: 'Verificando tu sesión…' });
-  const auth = await initAuth();
-  if (auth.status === 'login') {
-    showAuth({ text: 'Iniciá sesión con tu cuenta del equipo para continuar.', action: 'login' });
-    return;
-  }
-  if (auth.status === 'sin-configurar') {
-    showAuth({ text: 'El inicio de sesión todavía no está configurado en el servidor. Pedile al administrador que complete los datos de Auth0.', action: 'retry' });
-    return;
-  }
-  if (auth.status === 'error') {
-    showAuth({ text: auth.message, action: 'retry' });
-    return;
-  }
-
-  showAuth({ text: 'Cargando pacientes…' });
+async function enterApp() {
+  showStatus('Cargando pacientes…');
   try {
     if (!started) {
       subscribe(renderAll);
@@ -206,7 +316,7 @@ async function start() {
     }
     await loadAll();
   } catch (err) {
-    showAuth({ text: err.message, action: 'retry' });
+    showStatus(err.message, { retry: true });
     return;
   }
 
@@ -217,6 +327,24 @@ async function start() {
   watchStages();
   // Último estado guardado de los vuelos (no consulta AirLabs; eso es manual desde cada tramo).
   if (await loadFlightStatus()) renderAll();
+}
+
+async function start() {
+  showStatus('Verificando tu sesión…');
+  const auth = await initAuth();
+  if (auth.status === 'login') {
+    showEmailStep();
+    return;
+  }
+  if (auth.status === 'sin-configurar') {
+    showStatus('El inicio de sesión todavía no está configurado en el servidor. Pedile al administrador que complete los datos de Auth0.', { retry: true });
+    return;
+  }
+  if (auth.status === 'error') {
+    showStatus(auth.message, { retry: true });
+    return;
+  }
+  await enterApp();
 }
 
 // Cada minuto revisa si algún paciente cambió de etapa y, solo en ese caso, vuelve a dibujar.

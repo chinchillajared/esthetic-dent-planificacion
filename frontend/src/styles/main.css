@@ -425,19 +425,36 @@
   .leg-legend .leg-dot::before, .leg-legend .leg-dot::after { animation: none; opacity: 0; }
   .pill-live::before { background: var(--color-sky); animation: live-blink 1.2s ease-in-out infinite; }
 
-  /* Pantalla de acceso */
+  /* Pantalla de acceso: correo → código de un solo uso */
   .auth-screen {
-    min-height: 100dvh; display: grid; place-items: center; padding: 1.5rem 1rem;
+    min-height: 100dvh; display: grid; place-items: center; padding: 2rem 1rem;
     background:
-      radial-gradient(60rem 30rem at 15% -10%, rgb(92 185 242 / 0.25), transparent 60%),
-      radial-gradient(40rem 30rem at 110% 110%, rgb(3 76 140 / 0.18), transparent 60%),
+      radial-gradient(60rem 30rem at 15% -10%, rgb(92 185 242 / 0.22), transparent 60%),
+      radial-gradient(40rem 30rem at 110% 110%, rgb(3 76 140 / 0.14), transparent 60%),
       var(--color-paper);
   }
-  .auth-card {
-    width: min(26rem, 100%); padding: 2.25rem 2rem 1.75rem;
-    background: #fff; border: 1px solid var(--color-line); border-radius: 1.5rem; box-shadow: var(--shadow-float);
+  .auth-wrap { width: min(24rem, 100%); display: grid; justify-items: center; gap: 1.25rem; }
+  .auth-logo {
+    width: 5.5rem; height: 5.5rem; border-radius: 1.25rem; object-fit: cover;
+    background: #fff; box-shadow: var(--shadow-card); outline: 1px solid var(--color-line);
   }
-  .auth-card p { text-align: center; }
+  .auth-card {
+    width: 100%; padding: 1.75rem 1.75rem 1.5rem;
+    background: #fff; border: 1px solid var(--color-line); border-radius: 1.25rem; box-shadow: var(--shadow-float);
+  }
+  .auth-card p, .auth-card h2 { text-align: start; }
+  .auth-heading { font-size: 1.5rem; font-weight: 700; color: var(--color-deep); }
+  .auth-sub { color: var(--color-muted); font-size: 0.9375rem; overflow-wrap: anywhere; }
+  .auth-sub strong { color: var(--color-deep); font-weight: 400; font-family: var(--font-body); }
+  .auth-help { font-size: 0.8125rem; color: var(--color-muted); }
+  .auth-footnote { font-size: 0.8125rem; color: var(--color-muted); padding-top: 1rem; border-top: 1px solid var(--color-line); }
+  .auth-error {
+    padding: 0.5rem 0.75rem; border-radius: var(--radius-control);
+    background: var(--color-alert-soft); color: var(--color-alert); font-size: 0.875rem;
+  }
+  .auth-copy { font-size: 0.75rem; color: var(--color-muted); }
+  .otp-input { text-align: center; font-size: 1.375rem; letter-spacing: 0.5em; padding-left: calc(0.875rem + 0.5em); }
+  .otp-input::placeholder { letter-spacing: 0.5em; }
   .auth-spinner {
     width: 2.25rem; height: 2.25rem; margin-inline: auto; border-radius: 50%;
     border: 3px solid var(--color-haze); border-top-color: var(--color-azure);
