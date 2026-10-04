@@ -1,7 +1,9 @@
 """Datos iniciales.
 
-- Catálogos (sedes, tratamientos, hoteles, vuelos): solo si la tabla está vacía.
-- Pacientes de demostración: solo con SEED_DEMO=true y si no hay pacientes (nunca en producción real).
+- Catálogos (sedes, tratamientos, hoteles, vuelos): solo la primera vez, en las tablas vacías.
+- Pacientes de demostración: solo con SEED_DEMO=true, la primera vez y si no hay pacientes (nunca en producción real).
+
+Cada carga queda registrada en "datos_iniciales": si después se borran los registros, no vuelven a aparecer.
 
 Uso: python -m app.seed
 """
@@ -42,7 +44,13 @@ def _count(db: Session, model) -> int:
     return db.scalar(select(func.count()).select_from(model))
 
 
+def _ya_aplicado(db: Session, clave: str) -> bool:
+    return db.get(models.DatoInicial, clave) is not None
+
+
 def seed_catalogos(db: Session) -> None:
+    if _ya_aplicado(db, "catalogos"):
+        return
     if not _count(db, models.Sede):
         db.add_all(models.Sede(id=i, nombre=n, clave=clave(n)) for i, n in SEDES)
     if not _count(db, models.Tratamiento):
@@ -60,12 +68,17 @@ def seed_catalogos(db: Session) -> None:
             )
             for t, o, d, p in VUELOS
         )
+    db.add(models.DatoInicial(clave="catalogos"))
     db.commit()
 
 
 def seed_demo(db: Session) -> None:
     """Pacientes ficticios con fechas relativas a hoy, para ver la app con datos."""
+    if _ya_aplicado(db, "demo"):
+        return
+    db.add(models.DatoInicial(clave="demo"))
     if _count(db, models.Paciente):
+        db.commit()
         return
     tz = ZoneInfo(get_settings().timezone)
     now = datetime.now(tz).replace(tzinfo=None, second=0, microsecond=0)

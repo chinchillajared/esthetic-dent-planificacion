@@ -33,7 +33,7 @@ docker compose up -d --build
 
 4. Abrí `http://localhost:<NGINX_HTTP_PORT>` o `https://localhost:<NGINX_HTTPS_PORT>` (en local nginx usa un certificado autofirmado, por eso el navegador muestra una advertencia en HTTPS).
 
-Al arrancar, el backend aplica las migraciones (`alembic upgrade head`) y crea los catálogos iniciales si la base está vacía. Con `SEED_DEMO=true` también carga pacientes de demostración.
+Al arrancar, el backend aplica las migraciones (`alembic upgrade head`) y crea los catálogos iniciales **solo la primera vez** (queda registrado en la tabla `datos_iniciales`; si después borrás tratamientos, vuelos, hoteles o sedes, no vuelven a aparecer). Con `SEED_DEMO=true` también carga pacientes de demostración, también una sola vez.
 
 ### Desarrollo sin Auth0
 

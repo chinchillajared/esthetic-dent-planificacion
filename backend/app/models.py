@@ -142,6 +142,13 @@ class Paciente(Timestamped, Base):
     )
 
 
+class DatoInicial(Base):
+    """Registro de los datos iniciales ya cargados: se cargan una sola vez, aunque luego se borren."""
+    __tablename__ = "datos_iniciales"
+    clave: Mapped[str] = mapped_column(String(40), primary_key=True)
+    aplicado_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class EstadoVuelo(Base):
     """Última respuesta de AirLabs por número de vuelo (caché para cuidar la cuota mensual)."""
     __tablename__ = "estados_vuelo"
