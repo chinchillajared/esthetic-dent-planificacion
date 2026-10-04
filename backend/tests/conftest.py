@@ -43,6 +43,8 @@ class _FakeJWKS:
 @pytest.fixture(autouse=True)
 def _fake_auth0(monkeypatch):
     monkeypatch.setattr(auth, "jwks_client", lambda domain: _FakeJWKS())
+    monkeypatch.setattr(auth, "fetch_userinfo", lambda token, domain: {})
+    auth._PERFILES.clear()
 
 
 @pytest.fixture(autouse=True)

@@ -77,6 +77,8 @@ exports.onExecutePostLogin = async (event, api) => {
 
 **Deploy** → **Actions → Triggers → post-login**: arrastrala entre *Start* y *Complete* → **Apply**.
 
+Sin la Action la app igual funciona: el backend consulta `/userinfo` de Auth0 para obtener nombre y correo (con caché de 10 minutos). En usuarios de correo sin código, Auth0 usa el propio correo como **Name**: para que aparezca el nombre real, editá **Name** en *User Management → Users → (usuario)*.
+
 ## 8. `.env`
 
 ```dotenv

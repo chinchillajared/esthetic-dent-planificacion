@@ -296,8 +296,12 @@ window.addEventListener('auth:expired', () => {
 function showUser() {
   const user = currentUser() ?? {};
   const name = user.name || user.email || 'Usuario';
-  document.getElementById('user-name').textContent = name;
-  document.getElementById('user-email').textContent = user.email && user.email !== name ? user.email : 'Esthetic Dent International';
+  const nameEl = document.getElementById('user-name');
+  const emailEl = document.getElementById('user-email');
+  nameEl.textContent = name;
+  nameEl.title = name;
+  emailEl.textContent = user.email && user.email !== name ? user.email : 'Esthetic Dent International';
+  emailEl.title = emailEl.textContent;
   document.getElementById('user-initials').textContent = initials(name) || 'ED';
   document.getElementById('dev-mode-note').hidden = !isDevMode();
   document.getElementById('logout').hidden = isDevMode();

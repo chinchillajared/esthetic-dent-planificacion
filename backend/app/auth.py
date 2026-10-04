@@ -1,7 +1,9 @@
 """Autenticación con Auth0: valida el access token (JWT RS256) contra las llaves públicas del tenant."""
+import time
 from dataclasses import dataclass
 from functools import lru_cache
 
+import httpx
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -48,6 +50,32 @@ def decode_token(token: str, settings: Settings) -> dict:
         raise _unauthorized("La sesión no es válida o expiró. Iniciá sesión de nuevo.") from exc
 
 
+_PERFILES: dict[str, tuple[float, dict]] = {}
+PERFIL_TTL = 600  # segundos
+
+
+def fetch_userinfo(token: str, domain: str) -> dict:
+    """Nombre y correo desde /userinfo de Auth0 (si la Action no los agrega al token)."""
+    try:
+        res = httpx.get(f"https://{domain}/userinfo", headers={"Authorization": f"Bearer {token}"}, timeout=5)
+        return res.json() if res.status_code == 200 else {}
+    except (httpx.HTTPError, ValueError):
+        return {}
+
+
+def _perfil(sub: str, token: str, settings: Settings) -> dict:
+    ahora = time.monotonic()
+    guardado = _PERFILES.get(sub)
+    if guardado and guardado[0] > ahora:
+        return guardado[1]
+    perfil = fetch_userinfo(token, settings.auth0_domain)
+    if len(_PERFILES) > 500:
+        _PERFILES.clear()
+    # Si Auth0 no respondió, se reintenta en un minuto en lugar de esperar el TTL completo.
+    _PERFILES[sub] = (ahora + (PERFIL_TTL if perfil else 60), perfil)
+    return perfil
+
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
     settings: Settings = Depends(get_settings),
@@ -60,6 +88,12 @@ def get_current_user(
         raise _unauthorized("Iniciá sesión para continuar.")
 
     claims = decode_token(credentials.credentials, settings)
-    email = str(claims.get(settings.auth0_email_claim) or claims.get("email") or "")[:120]
-    nombre = claims.get(settings.auth0_name_claim) or email or claims["sub"]
-    return User(sub=claims["sub"], nombre=str(nombre)[:120], email=email)
+    sub = claims["sub"]
+    email = claims.get(settings.auth0_email_claim) or claims.get("email")
+    nombre = claims.get(settings.auth0_name_claim)
+    if not (email and nombre):
+        perfil = _perfil(sub, credentials.credentials, settings)
+        email = email or perfil.get("email")
+        nombre = nombre or perfil.get("name") or perfil.get("nickname")
+    email = str(email or "")[:120]
+    return User(sub=sub, nombre=str(nombre or email or "Usuario")[:120], email=email)

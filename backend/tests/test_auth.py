@@ -40,3 +40,27 @@ def test_token_valido_identifica_al_usuario(auth_client):
 def test_bypass_de_desarrollo_prohibido_en_produccion():
     with pytest.raises(ValidationError):
         Settings(environment="production", auth_dev_bypass=True)
+
+
+def test_sin_claims_usa_el_perfil_de_auth0(client, monkeypatch):
+    from app import auth
+
+    llamadas = []
+
+    def fake_userinfo(token, domain):
+        llamadas.append(domain)
+        return {"name": "Jared Chinchilla", "email": "jared@example.com"}
+
+    monkeypatch.setattr(auth, "fetch_userinfo", fake_userinfo)
+    token = make_token(sub="email|6aac9c9b41d0f889abee4d86", **{"https://esthetic-dent.app/name": None})
+    headers = {"Authorization": f"Bearer {token}"}
+    me = client.get("/api/me", headers=headers).json()
+    assert me == {"sub": "email|6aac9c9b41d0f889abee4d86", "nombre": "Jared Chinchilla", "email": "jared@example.com"}
+    client.get("/api/me", headers=headers)
+    assert len(llamadas) == 1  # el perfil queda en caché
+
+
+def test_sin_claims_ni_perfil_nunca_muestra_el_sub(client):
+    token = make_token(sub="email|abc", **{"https://esthetic-dent.app/name": None})
+    me = client.get("/api/me", headers={"Authorization": f"Bearer {token}"}).json()
+    assert me["nombre"] == "Usuario"
